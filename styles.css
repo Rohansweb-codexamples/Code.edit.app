@@ -424,3 +424,108 @@ body[data-header="compact"] .site-hero {
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 1400px) {
+  .builder-grid {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 1120px;
+    margin: 0 auto;
+  }
+
+  .sidebar {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  .preview-pane {
+    min-height: 620px;
+  }
+}
+
+@media (max-width: 980px) {
+  .app-header {
+    position: static;
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .brand-block {
+    align-items: center;
+  }
+
+  .header-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .header-actions button {
+    width: 100%;
+  }
+
+  .sidebar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .panel,
+  .editor-pane,
+  .preview-pane {
+    border-radius: 18px;
+  }
+
+  .editor-toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .editor-toolbar label,
+  .panel label {
+    width: 100%;
+  }
+
+  .editor-toolbar input,
+  .editor-toolbar select,
+  .panel select {
+    width: 100%;
+  }
+
+  #previewFrame {
+    min-height: 560px;
+  }
+}
+
+@media (max-width: 560px) {
+  body {
+    background: var(--app-bg);
+  }
+
+  .app-header,
+  .builder-grid {
+    padding: 12px;
+  }
+
+  .brand-block {
+    flex-direction: row;
+  }
+
+  .brand-mark {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+  }
+
+  .site-name {
+    font-size: 20px;
+  }
+
+  .header-actions,
+  .tool-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .site-canvas {
+    min-height: 520px;
+    margin: 10px;
+    padding: 16px;
+  }
+}

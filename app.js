@@ -1,4 +1,4 @@
-const state = {
+const defaultSite = {
   siteName: 'Studio Portfolio',
   theme: 'indigo',
   header: 'split',
@@ -30,6 +30,9 @@ const state = {
   ]
 };
 
+const clone = (value) => JSON.parse(JSON.stringify(value));
+const state = clone(defaultSite);
+
 const elements = {
   siteName: document.querySelector('#siteName'),
   themeSelect: document.querySelector('#themeSelect'),
@@ -44,7 +47,31 @@ const elements = {
   publishedUrl: document.querySelector('#publishedUrl')
 };
 
-const page = () => state.pages.find((item) => item.id === state.activePage) || state.pages[0];
+const normalizeState = () => {
+  if (!Array.isArray(state.pages) || state.pages.length === 0) {
+    state.pages = clone(defaultSite.pages);
+  }
+
+  state.pages = state.pages.map((item, index) => ({
+    id: item.id || `page-${index + 1}`,
+    title: item.title || `Page ${index + 1}`,
+    content: item.content || '<section class="site-section"><h2>Untitled page</h2><p>Start editing this page.</p></section>'
+  }));
+
+  if (!state.pages.some((item) => item.id === state.activePage)) {
+    state.activePage = state.pages[0].id;
+  }
+
+  state.siteName = state.siteName || defaultSite.siteName;
+  state.theme = state.theme || defaultSite.theme;
+  state.header = state.header || defaultSite.header;
+  state.buttonLink = state.buttonLink || defaultSite.buttonLink;
+};
+
+const page = () => {
+  normalizeState();
+  return state.pages.find((item) => item.id === state.activePage) || state.pages[0];
+};
 const slugify = (value) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'page';
 const encodeSite = () => btoa(unescape(encodeURIComponent(JSON.stringify(state))));
 const decodeSite = (value) => JSON.parse(decodeURIComponent(escape(atob(value))));
@@ -55,6 +82,7 @@ const loadFromHash = () => {
   try {
     const loaded = decodeSite(hash);
     Object.assign(state, loaded);
+    normalizeState();
   } catch (error) {
     console.warn('Could not load published site data.', error);
   }
@@ -111,17 +139,18 @@ const renderPages = () => {
 };
 
 const renderEditor = () => {
+  normalizeState();
   const active = page();
   document.body.dataset.theme = state.theme;
   document.body.dataset.header = state.header;
   elements.siteName.value = state.siteName;
   elements.themeSelect.value = state.theme;
   elements.headerStyle.value = state.header;
+  renderPages();
   elements.currentPageSelect.value = active.id;
   elements.pageTitle.value = active.title;
   elements.buttonLink.value = state.buttonLink;
   elements.canvas.innerHTML = active.content;
-  renderPages();
   renderPreview();
 };
 
@@ -194,5 +223,6 @@ elements.buttonLink.addEventListener('input', () => { state.buttonLink = element
 elements.canvas.addEventListener('input', renderPreview);
 document.querySelectorAll('[data-section]').forEach((button) => button.addEventListener('click', () => insertSection(button.dataset.section)));
 
+normalizeState();
 loadFromHash();
 renderEditor();
