@@ -7,24 +7,27 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="app-shell">
+  <div id="publicView" class="public-view" hidden></div>
+
+  <div id="builderApp" class="app-shell">
     <header class="app-header">
       <div class="brand-block">
         <span class="brand-mark">CE</span>
         <div>
-          <p class="eyebrow">Website builder</p>
+          <p class="eyebrow">Advanced website builder</p>
           <input id="siteName" class="site-name" value="Studio Portfolio" aria-label="Site name" />
         </div>
       </div>
       <nav class="header-actions" aria-label="Site actions">
-        <button id="previewButton" class="secondary">Preview</button>
-        <button id="publishButton" class="primary">Publish link</button>
-        <button id="downloadButton" class="primary">Download HTML</button>
+        <button id="newSiteButton" class="secondary">New site</button>
+        <button id="previewButton" class="secondary">Viewer</button>
+        <button id="publishButton" class="primary">Publish viewer</button>
+        <button id="downloadButton" class="primary">Download public HTML</button>
       </nav>
     </header>
 
-    <main class="builder-grid">
-      <aside class="sidebar" aria-label="Builder controls">
+    <main class="builder-layout">
+      <aside class="tools-panel" aria-label="Builder tools">
         <section class="panel">
           <div class="panel-header">
             <h2>Pages</h2>
@@ -34,13 +37,22 @@
         </section>
 
         <section class="panel">
-          <h2>Theme</h2>
-          <label>Color theme
+          <h2>Design</h2>
+          <label>Theme
             <select id="themeSelect">
               <option value="indigo">Indigo studio</option>
               <option value="forest">Forest launch</option>
               <option value="minimal">Minimal paper</option>
               <option value="slate">Slate product</option>
+              <option value="rose">Rose editorial</option>
+            </select>
+          </label>
+          <label>Font
+            <select id="fontSelect">
+              <option value="Inter, system-ui, sans-serif">Inter</option>
+              <option value="Georgia, serif">Georgia</option>
+              <option value="Arial, sans-serif">Arial</option>
+              <option value="Trebuchet MS, sans-serif">Trebuchet</option>
             </select>
           </label>
           <label>Header style
@@ -50,24 +62,30 @@
               <option value="compact">Compact banner</option>
             </select>
           </label>
+          <div class="color-grid">
+            <label>Accent <input id="accentColor" type="color" value="#4f46e5" /></label>
+            <label>Background <input id="backgroundColor" type="color" value="#ffffff" /></label>
+          </div>
         </section>
 
         <section class="panel">
-          <h2>Insert section</h2>
+          <h2>Insert blocks</h2>
           <div class="tool-grid">
-            <button data-section="text">Text block</button>
-            <button data-section="feature">Feature cards</button>
+            <button data-section="text">Text</button>
+            <button data-section="feature">Features</button>
             <button data-section="gallery">Gallery</button>
+            <button data-section="pricing">Pricing</button>
+            <button data-section="faq">FAQ</button>
             <button data-section="cta">Call to action</button>
-            <button data-section="contact">Contact form</button>
-            <button data-section="embed">Embed box</button>
+            <button data-section="contact">Contact</button>
+            <button data-section="embed">Embed</button>
           </div>
         </section>
       </aside>
 
-      <section class="editor-pane" aria-label="Page editor">
+      <section class="editor-stage" aria-label="Main website editor">
         <div class="editor-toolbar">
-          <label>Current page
+          <label>Page
             <select id="currentPageSelect"><option value="home">Home</option></select>
           </label>
           <label>Page title
@@ -76,30 +94,32 @@
           <label>Button link
             <input id="buttonLink" type="url" placeholder="https://example.com" />
           </label>
+          <button data-command="bold">Bold</button>
+          <button data-command="italic">Italic</button>
+          <button data-command="underline">Underline</button>
+          <button data-command="insertUnorderedList">Bullets</button>
+          <button data-command="justifyCenter">Center</button>
+          <label>Text color <input id="textColor" type="color" value="#111827" /></label>
         </div>
         <div id="canvas" class="site-canvas" contenteditable="true" spellcheck="true"></div>
       </section>
-
-      <aside class="preview-pane" aria-label="Live preview">
-        <div class="preview-header">
-          <h2>Live website preview</h2>
-          <span id="shareState">No cookies. Share links store data in the URL.</span>
-        </div>
-        <iframe id="previewFrame" title="Website preview"></iframe>
-      </aside>
     </main>
   </div>
 
+  <dialog id="previewDialog" class="modal preview-modal">
+    <form method="dialog"><button class="modal-close">Close</button></form>
+    <h2>Published viewer preview</h2>
+    <iframe id="previewFrame" title="Published viewer preview"></iframe>
+  </dialog>
+
   <dialog id="publishDialog" class="modal">
-    <form method="dialog">
-      <button class="modal-close" aria-label="Close publish dialog">Close</button>
-    </form>
-    <h2>Published link ready</h2>
-    <p>This link stores the site in the URL itself. It does not require cookies, accounts, or a server database.</p>
-    <textarea id="publishedUrl" readonly></textarea>
+    <form method="dialog"><button class="modal-close">Close</button></form>
+    <h2>Viewer published on this device</h2>
+    <p>The editable project is saved in this browser local storage. The viewer link opens a read-only public-style page with no editor controls on this device. To put it on the world wide web for everyone, use Download public HTML and upload the file to a web host.</p>
+    <input id="publishedUrl" readonly />
     <div class="modal-actions">
-      <button id="copyLinkButton" class="primary">Copy link</button>
-      <button id="openPublishedButton" class="secondary">Open link</button>
+      <button id="copyLinkButton" class="primary">Copy viewer link</button>
+      <button id="openPublishedButton" class="secondary">Open viewer</button>
     </div>
   </dialog>
 

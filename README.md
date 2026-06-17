@@ -1,10 +1,14 @@
 # Code.edit.app
 
-A browser-native website builder inspired by Google Sites. It lets you create pages, insert website sections, edit content directly, switch themes, preview the site, publish a shareable URL, and download a complete HTML file.
+A browser-native website builder inspired by Google Sites. It provides one large editable website canvas, advanced block insertion, page management, font controls, theme controls, local device saving, viewer-only publishing, and standalone HTML export.
 
-## No-cookie publishing
+## Local storage saving
 
-The publish action stores the current site data in the URL hash instead of cookies, accounts, or a server database. Any modern browser can open the generated link and reconstruct the site from that URL.
+Draft websites are saved in the browser local storage on the current device. Published viewer snapshots are also stored locally so the generated viewer link opens a read-only page with no editor access on that same browser.
+
+## Public website export
+
+For a site that is public on the world wide web, use **Download public HTML** and upload the generated file to a static host such as GitHub Pages, Netlify, Vercel, or any standard web server. The app has no backend, so it cannot make a worldwide public database-backed link by itself.
 
 ## Run locally
 
