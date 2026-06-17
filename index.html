@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Code.edit Docs Studio</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-theme="aurora">
+  <div class="app-shell">
+    <aside class="rail" aria-label="Workspace navigation">
+      <div class="rail__logo" aria-hidden="true">CE</div>
+      <button class="rail__item is-active" title="Document">📄</button>
+      <button class="rail__item" title="Graphics">🎨</button>
+      <button class="rail__item" title="Assets">🖼️</button>
+      <button class="rail__item" title="Comments">💬</button>
+      <button class="rail__item" title="Version history">🕘</button>
+    </aside>
+
+    <main class="workspace">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Code.edit Docs Studio</p>
+          <input id="documentTitle" class="doc-title" value="Untitled visual document" aria-label="Document title" />
+        </div>
+        <div class="topbar__actions">
+          <button class="ghost" id="wordCount">0 words</button>
+          <button class="ghost" id="toggleFocus">Focus mode</button>
+          <button class="primary" id="exportHtml">Export HTML</button>
+        </div>
+      </header>
+
+      <section class="formatbar" aria-label="Formatting toolbar">
+        <select id="themePicker" title="Theme">
+          <option value="aurora">Aurora</option>
+          <option value="midnight">Midnight</option>
+          <option value="paper">Paper</option>
+          <option value="sunset">Sunset</option>
+        </select>
+        <select id="blockStyle" title="Text style">
+          <option value="p">Paragraph</option>
+          <option value="h1">Heading 1</option>
+          <option value="h2">Heading 2</option>
+          <option value="blockquote">Quote</option>
+          <option value="pre">Code block</option>
+        </select>
+        <select id="fontFamily" title="Font family">
+          <option value="Inter, system-ui, sans-serif">Inter</option>
+          <option value="Georgia, serif">Georgia</option>
+          <option value="'Courier New', monospace">Mono</option>
+          <option value="'Trebuchet MS', sans-serif">Trebuchet</option>
+        </select>
+        <input id="fontSize" type="number" min="10" max="72" value="16" title="Font size" />
+        <button data-command="bold"><b>B</b></button>
+        <button data-command="italic"><i>I</i></button>
+        <button data-command="underline"><u>U</u></button>
+        <button data-command="insertUnorderedList">• List</button>
+        <button data-command="insertOrderedList">1. List</button>
+        <button data-command="justifyLeft">⬅</button>
+        <button data-command="justifyCenter">↔</button>
+        <button data-command="justifyRight">➡</button>
+        <label class="color-chip">Text <input id="foreColor" type="color" value="#1f2937" /></label>
+        <label class="color-chip">Mark <input id="hiliteColor" type="color" value="#fff3a3" /></label>
+      </section>
+
+      <div class="content-grid">
+        <section class="page-wrap" aria-label="Editable document canvas">
+          <article id="page" class="page" contenteditable="true" spellcheck="true">
+            <h1>Design a launch plan in minutes</h1>
+            <p><strong>Code.edit Docs Studio</strong> blends a Google Docs-style writing canvas with graphic blocks, smart callouts, layout templates, sticky notes, tables, and export tools.</p>
+            <div class="hero-card" contenteditable="false">
+              <div>
+                <span class="pill">Visual brief</span>
+                <h2>Q3 Campaign Board</h2>
+                <p>Drag shapes from the toolkit, style the document, and keep your work saved locally.</p>
+              </div>
+              <div class="sparkline"><span></span><span></span><span></span><span></span></div>
+            </div>
+            <h2>Project notes</h2>
+            <ul><li>Define the audience and message hierarchy.</li><li>Use callouts for decisions, risks, and approvals.</li><li>Export a polished HTML handoff when ready.</li></ul>
+          </article>
+        </section>
+
+        <aside class="inspector" aria-label="Tools and inspector">
+          <div class="panel">
+            <h3>Insert tools</h3>
+            <div class="tool-grid">
+              <button data-insert="heading">Heading</button>
+              <button data-insert="callout">Callout</button>
+              <button data-insert="table">Table</button>
+              <button data-insert="checklist">Checklist</button>
+              <button data-insert="divider">Divider</button>
+              <button data-insert="sticker">Sticker</button>
+            </div>
+          </div>
+          <div class="panel">
+            <h3>Graphics board</h3>
+            <div class="shape-tools">
+              <button data-shape="rect">Rectangle</button>
+              <button data-shape="circle">Circle</button>
+              <button data-shape="note">Sticky note</button>
+              <button data-shape="arrow">Arrow</button>
+            </div>
+            <canvas id="graphicsBoard" width="320" height="250" aria-label="Graphics board"></canvas>
+            <button class="wide" id="clearBoard">Clear graphics</button>
+          </div>
+          <div class="panel">
+            <h3>Document stats</h3>
+            <p id="stats">Start writing to see document insights.</p>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
