@@ -4,161 +4,114 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Code.edit</title>
-    <!-- Tailwind CSS for modern premium graphics -->
-    <script src="https://jsdelivr.net"></script>
-    <!-- CodeMirror Editor Core via CDN -->
-    <link rel="stylesheet" href="https://cloudflare.com">
     <script src="https://cloudflare.com"></script>
-    <!-- CodeMirror Languages -->
-    <script src="https://cloudflare.com"></script>
-    <script src="https://cloudflare.com"></script>
-    <script src="https://cloudflare.com"></script>
-    <!-- CodeMirror Themes -->
-    <link rel="stylesheet" href="https://cloudflare.com">
-    <link rel="stylesheet" href="https://cloudflare.com">
-    <link rel="stylesheet" href="https://cloudflare.com">
-    
     <style>
-        /* Smooth transitions for theme swapping */
-        body, .editor-container, .navbar {
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-        .CodeMirror {
-            height: calc(100vh - 120px) !important;
-            font-family: 'Fira Code', 'Courier New', monospace;
-            font-size: 15px;
-            border-radius: 12px;
-            padding: 8px;
-        }
-        /* Glassmorphism effects for premium feel */
-        .glass {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .glass-light {
-            background: rgba(0, 0, 0, 0.03);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(0, 0, 0, 0.08);
-        }
+        :root { --bg-color: #121214; --surface-color: #1a1a1e; --border-color: #2c2c35; --text-color: #e2e8f0; --accent-color: #3b82f6; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+        body { background-color: var(--bg-color); color: var(--text-color); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        .header { background-color: var(--surface-color); border-bottom: 1px solid var(--border-color); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); z-index: 10; }
+        .brand { display: flex; align-items: center; gap: 10px; }
+        .logo-box { background: linear-gradient(135deg, #06b6d4, #3b82f6); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: white; font-size: 14px; box-shadow: 0 0 12px rgba(59, 130, 246, 0.4); }
+        .title { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; background: linear-gradient(to right, #ffffff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .controls { display: flex; align-items: center; gap: 8px; }
+        select { background-color: #26262b; color: #cbd5e1; border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 8px; font-size: 13px; outline: none; cursor: pointer; }
+        .btn-icon { background: none; border: none; color: #94a3b8; padding: 6px; cursor: pointer; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+        .btn-icon:hover { background-color: #26262b; color: white; }
+        .workspace { flex: 1; position: relative; padding: 12px; background-color: var(--bg-color); }
+        #editor { width: 100%; height: 100%; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-size: 14px; }
+        .fab { position: absolute; bottom: 24px; right: 24px; width: 56px; height: 56px; background: linear-gradient(to right, #10b981, #059669); border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4); cursor: pointer; z-index: 20; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 100; display: none; align-items: flex-end; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        .modal { background-color: #16161a; width: 100%; max-width: 500px; border-top-left-radius: 20px; border-top-right-radius: 20px; padding: 24px; border-top: 1px solid var(--border-color); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-title { font-size: 18px; font-weight: 700; }
+        .modal-close { background: none; border: none; color: var(--accent-color); font-weight: 600; font-size: 14px; cursor: pointer; }
+        .theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+        .theme-btn { padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); text-align: left; font-size: 13px; font-weight: 500; cursor: pointer; color: white; }
+        .footer { background-color: #09090b; padding: 6px 16px; display: flex; justify-content: space-between; font-size: 11px; color: #71717a; border-top: 1px solid #18181b; }
+        .status-tag { display: flex; align-items: center; gap: 6px; }
+        .indicator { width: 6px; height: 6px; background-color: #10b981; border-radius: 50%; }
     </style>
 </head>
-<body class="bg-[#1e1e1e] text-gray-200 font-sans h-screen flex flex-col justify-between overflow-hidden">
-
-    <!-- Top Premium Navbar -->
-    <header id="navbar" class="glass px-4 py-3 flex items-center justify-between shadow-lg">
-        <div class="flex items-center space-x-3">
-            <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-md shadow-blue-500/30">
-                <span class="text-white font-black text-sm">&lt;/&gt;</span>
-            </div>
-            <h1 class="text-lg font-bold tracking-tight bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">Code.edit</h1>
+<body>
+    <header class="header">
+        <div class="brand">
+            <div class="logo-box">&lt;/&gt;</div>
+            <span class="title">Code.edit</span>
         </div>
-        
-        <div class="flex items-center space-x-2">
-            <!-- Language Picker -->
-            <select id="langSelect" class="bg-zinc-800 text-xs text-gray-300 rounded-lg px-3 py-1.5 border border-zinc-700 focus:outline-none focus:border-blue-500">
-                <option value="javascript">JavaScript</option>
+        <div class="controls">
+            <select id="languageSelect">
                 <option value="python">Python</option>
-                <option value="clike">C / C++ / Java</option>
+                <option value="javascript">JavaScript</option>
+                <option value="java">Java</option>
+                <option value="c_cpp">C / C++</option>
+                <option value="html">HTML</option>
             </select>
-            
-            <!-- Settings Button -->
-            <button onclick="toggleSettingsModal()" class="p-2 hover:bg-zinc-800 rounded-lg transition-colors">
-                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            <button class="btn-icon" onclick="openSettings()">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
             </button>
         </div>
     </header>
+    <main class="workspace">
+        <div id="editor">import turtle
 
-    <!-- Main Workspace Container -->
-    <main class="flex-1 p-3 relative">
-        <div id="editorWrapper" class="h-full rounded-xl overflow-hidden shadow-2xl border border-zinc-800/80">
-            <textarea id="editorCode"># Welcome to Code.edit&#10;def greet():&#10;    print("Hello Mobile Developer!")&#10;&#10;greet()</textarea>
-        </div>
-        
-        <!-- Floating Execution Action Floating Button -->
-        <button onclick="runConsoleDemo()" class="absolute bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full flex items-center justify-center shadow-lg shadow-emerald-900/40 active:scale-95 transition-transform z-10">
-            <svg class="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+t = turtle.Turtle()
+t.left(90)
+
+def branch(length):
+    if length &lt; 8:
+        return
+    t.forward(length)
+    t.left(25)
+    branch(length - 15)
+    t.right(50)
+    branch(length - 15)
+    t.left(25)
+    t.backward(length)
+
+branch(120)</div>
+        <button class="fab" onclick="runCode()">
+            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
         </button>
     </main>
-
-    <!-- Bottom Status Info Panel -->
-    <footer class="bg-zinc-950 px-4 py-2 flex items-center justify-between text-xs text-gray-400 border-t border-zinc-900">
-        <div>Ln 1, Col 1</div>
-        <div class="flex items-center space-x-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+    <footer class="footer">
+        <div id="cursorPos">Ln 1, Col 1</div>
+        <div class="status-tag">
+            <div class="indicator"></div>
             <span>Ready</span>
         </div>
     </footer>
-
-    <!-- Premium Configuration Sheet Settings Modal -->
-    <div id="settingsModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end justify-center">
-        <div class="bg-zinc-900 w-full max-w-xl rounded-t-2xl p-6 border-t border-zinc-800 animate-slide-up shadow-2xl">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-lg font-bold text-white">UI Settings & Themes</h3>
-                <button onclick="toggleSettingsModal()" class="text-gray-400 hover:text-white text-sm font-medium">Done</button>
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">UI Settings</span>
+                <button class="modal-close" onclick="closeSettings()">Done</button>
             </div>
-            
-            <div class="space-y-4">
-                <div>
-                    <label class="text-xs text-gray-400 block mb-2 font-semibold tracking-wider uppercase">Color Schema</label>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button onclick="changeTheme('material-darker', '#212121')" class="bg-zinc-800 text-left p-3 rounded-xl border border-zinc-700 text-sm hover:border-blue-500 text-white">VSCode Dark</button>
-                        <button onclick="changeTheme('dracula', '#282a36')" class="bg-[#282a36] text-left p-3 rounded-xl border border-purple-900/50 text-sm hover:border-purple-500 text-purple-200">Dracula Theme</button>
-                        <button onclick="changeTheme('default', '#f7f7f7')" class="bg-white text-left p-3 rounded-xl border border-gray-300 text-sm text-gray-800 hover:border-blue-500">GitHub Light</button>
-                        <button onclick="changeTheme('neo', '#2b2b2b')" class="bg-[#2b2b2b] text-left p-3 rounded-xl border border-zinc-700 text-sm text-emerald-400 hover:border-emerald-500">Matrix Neo</button>
-                    </div>
-                </div>
-                
-                <div class="pt-4 border-t border-zinc-800 flex justify-between text-xs text-gray-500">
-                    <span>Version 2.5.0 Premium</span>
-                    <a href="#" class="text-blue-400">View Source Code</a>
-                </div>
+            <div style="font-size: 12px; color: #71717a; margin-bottom: 8px; font-weight: 600; text-transform: uppercase;">Color Schema</div>
+            <div class="theme-grid">
+                <button class="theme-btn" style="background-color: #141414; border-color: #444;" onclick="setTheme('monokai')">Monokai Dark</button>
+                <button class="theme-btn" style="background-color: #1a1a24; border-color: #3b82f6;" onclick="setTheme('one_dark')">One Dark</button>
+                <button class="theme-btn" style="background-color: #0f172a; border-color: #334155;" onclick="setTheme('twilight')">Twilight Slate</button>
+                <button class="theme-btn" style="background-color: #f8fafc; color: #0f172a; border-color: #cbd5e1;" onclick="setTheme('textmate')">GitHub Light</button>
             </div>
         </div>
     </div>
-
-    <!-- Core App Logic Scripts -->
     <script>
-        // Init CodeMirror instance
-        var editor = CodeMirror.fromTextArea(document.getElementById("editorCode"), {
-            lineNumbers: true,
-            mode: "python",
-            theme: "material-darker",
-            tabSize: 4,
-            lineWrapping: true
+        var editor = ace.edit("editor");
+        editor.setTheme("ace/theme/one_dark");
+        editor.session.setMode("ace/mode/python");
+        editor.setOptions({ showPrintMargin: false, enableBasicAutocompletion: true, useSoftTabs: true });
+        editor.selection.on("changeCursor", function() {
+            var cursor = editor.getCursorPosition();
+            document.getElementById("cursorPos").innerText = "Ln " + (cursor.row + 1) + ", Col " + (cursor.column + 1);
         });
-
-        // Toggle configuration drawer
-        function toggleSettingsModal() {
-            const modal = document.getElementById('settingsModal');
-            modal.classList.toggle('hidden');
-        }
-
-        // Theme controller with layout background adjustments
-        function changeTheme(themeName, navBgColor) {
-            editor.setOption("theme", themeName);
-            const navbar = document.getElementById('navbar');
-            
-            if (themeName === 'default') {
-                document.body.className = "bg-gray-100 text-gray-900 font-sans h-screen flex flex-col justify-between overflow-hidden";
-                navbar.className = "glass-light px-4 py-3 flex items-center justify-between shadow-sm";
-            } else {
-                document.body.className = "bg-[#121212] text-gray-200 font-sans h-screen flex flex-col justify-between overflow-hidden";
-                navbar.className = "glass px-4 py-3 flex items-center justify-between shadow-lg";
-            }
-            toggleSettingsModal();
-        }
-
-        // Dropdown Selection Language mapping
-        document.getElementById('langSelect').addEventListener('change', function(e) {
-            editor.setOption("mode", e.target.value);
+        document.getElementById("languageSelect").addEventListener("change", function(e) {
+            editor.session.setMode("ace/mode/" + e.target.value);
         });
-
-        // Play callback
-        function runConsoleDemo() {
-            alert("Code Execution:\n\n" + editor.getValue());
-        }
+        function openSettings() { document.getElementById("modalOverlay").classList.add("active"); }
+        function closeSettings() { document.getElementById("modalOverlay").classList.remove("active"); }
+        function setTheme(name) { editor.setTheme("ace/theme/" + name); closeSettings(); }
+        function runCode() { alert("Compiling & Executing Source:\n\n" + editor.getValue()); }
     </script>
 </body>
 </html>
-
