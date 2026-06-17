@@ -56,12 +56,26 @@ const elements = {
   previewDialog: document.querySelector('#previewDialog'),
   previewFrame: document.querySelector('#previewFrame'),
   publishDialog: document.querySelector('#publishDialog'),
-  publishedUrl: document.querySelector('#publishedUrl')
+  publishedUrl: document.querySelector('#publishedUrl'),
+  deleteSectionButton: document.querySelector('#deleteSectionButton'),
+  placementStatus: document.querySelector('#placementStatus')
 };
 
+let pendingSectionType = null;
+let selectedSection = null;
+
 const slugify = (value) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'site';
+const encodeSite = (site) => btoa(unescape(encodeURIComponent(JSON.stringify(site))));
+const decodeSite = (value) => JSON.parse(decodeURIComponent(escape(atob(value))));
 const publishedStore = () => JSON.parse(localStorage.getItem(PUBLISHED_KEY) || '{}');
 const savePublishedStore = (store) => localStorage.setItem(PUBLISHED_KEY, JSON.stringify(store));
+
+const cleanEditorHtml = (html) => {
+  const template = document.createElement('template');
+  template.innerHTML = html;
+  template.content.querySelectorAll('.is-selected').forEach((node) => node.classList.remove('is-selected'));
+  return template.innerHTML;
+};
 
 const normalizeState = () => {
   if (!Array.isArray(state.pages) || state.pages.length === 0) state.pages = clone(defaultSite.pages);
@@ -86,7 +100,7 @@ const page = () => {
 };
 
 const saveProject = () => {
-  page().content = elements.canvas.innerHTML;
+  page().content = cleanEditorHtml(elements.canvas.innerHTML);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 };
 
@@ -160,6 +174,10 @@ const renderEditor = () => {
   elements.currentPageSelect.value = active.id;
   elements.pageTitle.value = active.title;
   elements.buttonLink.value = state.buttonLink;
+  selectedSection = null;
+  pendingSectionType = null;
+  elements.canvas.classList.remove('is-placing');
+  elements.placementStatus.textContent = 'Select text to edit, or choose a block then click the page to place it.';
   elements.canvas.innerHTML = active.content;
 };
 
@@ -183,8 +201,47 @@ const addPage = () => {
   saveProject();
 };
 
-const insertSection = (type) => {
-  document.execCommand('insertHTML', false, sectionTemplates[type]);
+const setPendingSection = (type) => {
+  pendingSectionType = type;
+  elements.canvas.classList.add('is-placing');
+  elements.placementStatus.textContent = `${type} block selected. Click the page to place it.`;
+};
+
+const selectSection = (section) => {
+  if (selectedSection) selectedSection.classList.remove('is-selected');
+  selectedSection = section;
+  if (selectedSection) {
+    selectedSection.classList.add('is-selected');
+    elements.placementStatus.textContent = 'Section selected. Edit text directly or delete the selected section.';
+  }
+};
+
+const placeSection = (event) => {
+  if (!pendingSectionType) return false;
+  event.preventDefault();
+  const html = sectionTemplates[pendingSectionType];
+  const targetSection = event.target.closest('.site-section');
+  if (targetSection && elements.canvas.contains(targetSection)) {
+    targetSection.insertAdjacentHTML('afterend', html);
+  } else {
+    elements.canvas.insertAdjacentHTML('beforeend', html);
+  }
+  pendingSectionType = null;
+  elements.canvas.classList.remove('is-placing');
+  elements.placementStatus.textContent = 'Block placed. Click another block to insert more, or edit text directly.';
+  saveProject();
+  return true;
+};
+
+const deleteSelectedSection = () => {
+  if (!selectedSection || !elements.canvas.contains(selectedSection)) {
+    elements.placementStatus.textContent = 'Click a section on the page before deleting.';
+    return;
+  }
+  const sectionToDelete = selectedSection;
+  selectedSection = null;
+  sectionToDelete.remove();
+  elements.placementStatus.textContent = 'Section deleted.';
   saveProject();
 };
 
@@ -200,7 +257,7 @@ const publish = () => {
   const store = publishedStore();
   store[slug] = clone(state);
   savePublishedStore(store);
-  const url = `${window.location.origin}${window.location.pathname}?view=${encodeURIComponent(slug)}`;
+  const url = `${window.location.origin}${window.location.pathname}?view=${encodeURIComponent(slug)}#site=${encodeSite(store[slug])}`;
   elements.publishedUrl.value = url;
   elements.publishDialog.showModal();
 };
@@ -223,11 +280,21 @@ const newSite = () => {
 };
 
 const renderPublicViewer = (slug) => {
-  const site = publishedStore()[slug];
+  let site = publishedStore()[slug];
+  if (!site && window.location.hash.startsWith('#site=')) {
+    try {
+      site = decodeSite(window.location.hash.slice(6));
+      const store = publishedStore();
+      store[slug] = site;
+      savePublishedStore(store);
+    } catch (error) {
+      console.warn('Could not load published viewer link.', error);
+    }
+  }
   if (!site) {
     elements.publicView.hidden = false;
     elements.builderApp.hidden = true;
-    elements.publicView.innerHTML = '<main class="missing-view"><h1>Published site not found on this device.</h1><p>This viewer link does not contain site data. Open it on the browser where it was published, or upload the downloaded public HTML file to a web host for worldwide access.</p></main>';
+    elements.publicView.innerHTML = '<main class="missing-view"><h1>Published site not found.</h1><p>This viewer link has no readable published data. Publish again or download the public HTML file and upload it to a web host.</p></main>';
     return true;
   }
   Object.assign(state, site);
@@ -248,7 +315,8 @@ const renderPublicViewer = (slug) => {
       history.replaceState(null, '', `?view=${encodeURIComponent(slug)}${link.getAttribute('href')}`);
     });
   });
-  showPublicPage(window.location.hash || `#${state.pages[0].id}`);
+  const initialHash = window.location.hash && !window.location.hash.startsWith('#site=') ? window.location.hash : `#${state.pages[0].id}`;
+  showPublicPage(initialHash);
   return true;
 };
 
@@ -268,7 +336,13 @@ document.querySelector('#copyLinkButton').addEventListener('click', async () => 
 document.querySelector('#openPublishedButton').addEventListener('click', () => window.open(elements.publishedUrl.value, '_blank', 'noopener'));
 document.querySelectorAll('[data-command]').forEach((button) => button.addEventListener('click', () => { document.execCommand(button.dataset.command); saveProject(); }));
 document.querySelector('#textColor').addEventListener('input', (event) => { document.execCommand('foreColor', false, event.target.value); saveProject(); });
-document.querySelectorAll('[data-section]').forEach((button) => button.addEventListener('click', () => insertSection(button.dataset.section)));
+elements.deleteSectionButton.addEventListener('click', deleteSelectedSection);
+document.querySelectorAll('[data-section]').forEach((button) => button.addEventListener('click', () => setPendingSection(button.dataset.section)));
+elements.canvas.addEventListener('click', (event) => {
+  if (placeSection(event)) return;
+  const section = event.target.closest('.site-section');
+  if (section && elements.canvas.contains(section)) selectSection(section);
+});
 elements.siteName.addEventListener('input', () => { state.siteName = elements.siteName.value; saveProject(); });
 elements.themeSelect.addEventListener('change', () => { state.theme = elements.themeSelect.value; applyDesign(); saveProject(); });
 elements.fontSelect.addEventListener('change', () => { state.font = elements.fontSelect.value; applyDesign(); saveProject(); });

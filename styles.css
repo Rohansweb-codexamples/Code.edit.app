@@ -190,3 +190,39 @@ summary { cursor: pointer; font-weight: 900; }
   .published-header { display: block; }
   .published-header nav { margin-top: 12px; }
 }
+
+.panel-help {
+  margin: -4px 0 14px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.danger-button {
+  border-color: #fecaca;
+  background: #fff1f2;
+  color: #991b1b;
+}
+
+.placement-status {
+  flex: 1 1 260px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.site-canvas.is-placing {
+  cursor: copy;
+  outline: 3px solid color-mix(in srgb, var(--accent), transparent 70%);
+}
+
+.site-canvas.is-placing .site-section:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--site-accent), transparent 94%);
+}
+
+.site-section.is-selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent), transparent 82%);
+}

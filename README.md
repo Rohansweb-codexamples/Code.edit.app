@@ -4,7 +4,7 @@ A browser-native website builder inspired by Google Sites. It provides one large
 
 ## Local storage saving
 
-Draft websites are saved in the browser local storage on the current device. Published viewer snapshots are also stored locally so the generated viewer link opens a read-only page with no editor access on that same browser.
+Draft websites are saved in the browser local storage on the current device. Published viewer snapshots are stored locally, and published viewer links include a read-only snapshot fallback so opening the link shows the public viewer without editor controls.
 
 ## Public website export
 

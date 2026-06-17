@@ -70,6 +70,7 @@
 
         <section class="panel">
           <h2>Insert blocks</h2>
+          <p class="panel-help">Choose a block, then click the page where it should be placed.</p>
           <div class="tool-grid">
             <button data-section="text">Text</button>
             <button data-section="feature">Features</button>
@@ -99,7 +100,9 @@
           <button data-command="underline">Underline</button>
           <button data-command="insertUnorderedList">Bullets</button>
           <button data-command="justifyCenter">Center</button>
+          <button id="deleteSectionButton" class="danger-button" type="button">Delete section</button>
           <label>Text color <input id="textColor" type="color" value="#111827" /></label>
+          <span id="placementStatus" class="placement-status">Select text to edit, or choose a block then click the page to place it.</span>
         </div>
         <div id="canvas" class="site-canvas" contenteditable="true" spellcheck="true"></div>
       </section>
