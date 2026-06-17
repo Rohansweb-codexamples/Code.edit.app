@@ -1,6 +1,10 @@
 # Code.edit.app
 
-A polished, browser-native document and graphics editor prototype inspired by modern collaborative suites. It includes a rich editable page, themes, formatting controls, insertable content blocks, a lightweight graphics board, local autosave, and HTML export.
+A browser-native website builder inspired by Google Sites. It lets you create pages, insert website sections, edit content directly, switch themes, preview the site, publish a shareable URL, and download a complete HTML file.
+
+## No-cookie publishing
+
+The publish action stores the current site data in the URL hash instead of cookies, accounts, or a server database. Any modern browser can open the generated link and reconstruct the site from that URL.
 
 ## Run locally
 
