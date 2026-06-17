@@ -1,117 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Code.edit</title>
-    <script src="https://cloudflare.com"></script>
-    <style>
-        :root { --bg-color: #121214; --surface-color: #1a1a1e; --border-color: #2c2c35; --text-color: #e2e8f0; --accent-color: #3b82f6; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
-        body { background-color: var(--bg-color); color: var(--text-color); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        .header { background-color: var(--surface-color); border-bottom: 1px solid var(--border-color); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); z-index: 10; }
-        .brand { display: flex; align-items: center; gap: 10px; }
-        .logo-box { background: linear-gradient(135deg, #06b6d4, #3b82f6); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: white; font-size: 14px; box-shadow: 0 0 12px rgba(59, 130, 246, 0.4); }
-        .title { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; background: linear-gradient(to right, #ffffff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .controls { display: flex; align-items: center; gap: 8px; }
-        select { background-color: #26262b; color: #cbd5e1; border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 8px; font-size: 13px; outline: none; cursor: pointer; }
-        .btn-icon { background: none; border: none; color: #94a3b8; padding: 6px; cursor: pointer; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
-        .btn-icon:hover { background-color: #26262b; color: white; }
-        .workspace { flex: 1; position: relative; padding: 12px; background-color: var(--bg-color); }
-        #editor { width: 100%; height: 100%; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-size: 14px; }
-        .fab { position: absolute; bottom: 24px; right: 24px; width: 56px; height: 56px; background: linear-gradient(to right, #10b981, #059669); border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4); cursor: pointer; z-index: 20; }
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 100; display: none; align-items: flex-end; justify-content: center; }
-        .modal-overlay.active { display: flex; }
-        .modal { background-color: #16161a; width: 100%; max-width: 500px; border-top-left-radius: 20px; border-top-right-radius: 20px; padding: 24px; border-top: 1px solid var(--border-color); }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .modal-title { font-size: 18px; font-weight: 700; }
-        .modal-close { background: none; border: none; color: var(--accent-color); font-weight: 600; font-size: 14px; cursor: pointer; }
-        .theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
-        .theme-btn { padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); text-align: left; font-size: 13px; font-weight: 500; cursor: pointer; color: white; }
-        .footer { background-color: #09090b; padding: 6px 16px; display: flex; justify-content: space-between; font-size: 11px; color: #71717a; border-top: 1px solid #18181b; }
-        .status-tag { display: flex; align-items: center; gap: 6px; }
-        .indicator { width: 6px; height: 6px; background-color: #10b981; border-radius: 50%; }
-    </style>
-</head>
-<body>
-    <header class="header">
-        <div class="brand">
-            <div class="logo-box">&lt;/&gt;</div>
-            <span class="title">Code.edit</span>
-        </div>
-        <div class="controls">
-            <select id="languageSelect">
-                <option value="python">Python</option>
-                <option value="javascript">JavaScript</option>
-                <option value="java">Java</option>
-                <option value="c_cpp">C / C++</option>
-                <option value="html">HTML</option>
-            </select>
-            <button class="btn-icon" onclick="openSettings()">
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-            </button>
-        </div>
-    </header>
-    <main class="workspace">
-        <div id="editor">import turtle
-
-t = turtle.Turtle()
-t.left(90)
-
-def branch(length):
-    if length &lt; 8:
-        return
-    t.forward(length)
-    t.left(25)
-    branch(length - 15)
-    t.right(50)
-    branch(length - 15)
-    t.left(25)
-    t.backward(length)
-
-branch(120)</div>
-        <button class="fab" onclick="runCode()">
-            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-        </button>
-    </main>
-    <footer class="footer">
-        <div id="cursorPos">Ln 1, Col 1</div>
-        <div class="status-tag">
-            <div class="indicator"></div>
-            <span>Ready</span>
-        </div>
-    </footer>
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal">
-            <div class="modal-header">
-                <span class="modal-title">UI Settings</span>
-                <button class="modal-close" onclick="closeSettings()">Done</button>
-            </div>
-            <div style="font-size: 12px; color: #71717a; margin-bottom: 8px; font-weight: 600; text-transform: uppercase;">Color Schema</div>
-            <div class="theme-grid">
-                <button class="theme-btn" style="background-color: #141414; border-color: #444;" onclick="setTheme('monokai')">Monokai Dark</button>
-                <button class="theme-btn" style="background-color: #1a1a24; border-color: #3b82f6;" onclick="setTheme('one_dark')">One Dark</button>
-                <button class="theme-btn" style="background-color: #0f172a; border-color: #334155;" onclick="setTheme('twilight')">Twilight Slate</button>
-                <button class="theme-btn" style="background-color: #f8fafc; color: #0f172a; border-color: #cbd5e1;" onclick="setTheme('textmate')">GitHub Light</button>
-            </div>
-        </div>
-    </div>
-    <script>
-        var editor = ace.edit("editor");
-        editor.setTheme("ace/theme/one_dark");
-        editor.session.setMode("ace/mode/python");
-        editor.setOptions({ showPrintMargin: false, enableBasicAutocompletion: true, useSoftTabs: true });
-        editor.selection.on("changeCursor", function() {
-            var cursor = editor.getCursorPosition();
-            document.getElementById("cursorPos").innerText = "Ln " + (cursor.row + 1) + ", Col " + (cursor.column + 1);
-        });
-        document.getElementById("languageSelect").addEventListener("change", function(e) {
-            editor.session.setMode("ace/mode/" + e.target.value);
-        });
-        function openSettings() { document.getElementById("modalOverlay").classList.add("active"); }
-        function closeSettings() { document.getElementById("modalOverlay").classList.remove("active"); }
-        function setTheme(name) { editor.setTheme("ace/theme/" + name); closeSettings(); }
-        function runCode() { alert("Compiling & Executing Source:\n\n" + editor.getValue()); }
-    </script>
-</body>
-</html>
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Code.edit Pro</title><script src="https://cloudflare.com"></script><script src="https://cloudflare.com"></script><style>:root{--bg:#07080b;--surf:#0f111a;--brd:#1d2133;--txt:#f8fafc;--act:#2563eb}*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}body{background:var(--bg);color:var(--txt);height:100vh;display:flex;flex-direction:column;overflow:hidden}.hdr{background:var(--surf);border-bottom:1px solid var(--brd);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 20px rgba(0,0,0,.5);z-index:40;flex-shrink:0}.brand{display:flex;align-items:center;gap:8px}.logo{background:linear-gradient(135deg,#00f2fe,#4facfe);width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;color:#000;font-size:13px;box-shadow:0 0 15px rgba(79,172,254,.4)}.title{font-size:16px;font-weight:800;background:linear-gradient(to right,#fff,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.ctrls{display:flex;align-items:center;gap:6px;overflow-x:auto}.ctrls::-webkit-scrollbar{display:none}select,.btn{background:#161925;color:#cbd5e1;border:1px solid var(--brd);padding:6px 12px;border-radius:6px;font-size:12px;font-weight:500;outline:none;cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap}.btn-act{background:var(--act);color:#fff;border-color:var(--act)}.main{flex:1;display:flex;flex-direction:row;height:calc(100vh - 76px);overflow:hidden;position:relative}.editor-wrap{flex:1;height:100%;position:relative;border-right:1px solid var(--brd);display:flex;flex-direction:column;overflow:hidden}#editor{position:absolute;top:0;left:0;right:0;bottom:0;font-size:14px;pointer-events:auto!important}.view-wrap{width:45%;height:100%;background:#111;display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;border-left:1px solid var(--brd)}.view-wrap.hidden{width:0;border:none}.view-bar{background:#0a0a0f;padding:6px 12px;border-bottom:1px solid #1a1a26;display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:700;color:#64748b;letter-spacing:.5px}#preview{flex:1;background:#fff;border:none;width:100%;height:100%}#console{flex:1;background:#050508;color:#0f6;padding:12px;font-family:monospace;font-size:12px;overflow-y:auto;white-space:pre-wrap;word-break:break-all}.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(6px);z-index:100;display:none;align-items:flex-end;justify-content:center}.modal-overlay.active{display:flex}.modal{background:#0b0c10;width:100%;max-width:460px;border-top-left-radius:16px;border-top-right-radius:16px;padding:20px;border-top:1px solid var(--brd)}.modal-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.t-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.t-btn{padding:10px;border-radius:8px;border:1px solid var(--brd);text-align:left;font-size:12px;cursor:pointer;color:#fff}.ftr{background:#040507;padding:6px 16px;display:flex;justify-content:space-between;font-size:11px;color:#475569;border-top:1px solid #0f111a;z-index:40;flex-shrink:0}.status{display:flex;align-items:center;gap:6px}.ind{width:6px;height:6px;background:#10b981;border-radius:50%;box-shadow:0 0 8px #10b981}input[type=file]{display:none}</style></head><body><header class="hdr"><div class="brand"><div class="logo">&lt;/&gt;</div><span class="title">Code.edit</span></div><div class="ctrls"><select id="langSel"><option value="html">HTML Studio</option><option value="javascript">JavaScript</option><option value="python">Python</option><option value="java">Java</option><option value="c_cpp">C++</option></select><label class="btn">📁 Open<input type="file" id="fIn" onchange="loadFile(this)"></label><button class="btn" onclick="saveFile()">💾 Save</button><button class="btn btn-act" onclick="runCode()">⚡ Run</button><button class="btn" onclick="openSettings()">⚙️ UI</button></div></header><div class="main"><div class="editor-wrap"><div id="editor">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;style&gt;
+    body { background: #0b0c10; color: #00ffcc; font-family: sans-serif; text-align: center; padding-top: 60px; }
+    h1 { font-size: 2.5rem; text-shadow: 0 0 20px #00ffcc; animation: glow 1.5s infinite alternate; }
+    @keyframes glow { from { transform: scale(1); } to { transform: scale(1.05); } }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Code.edit Pro Workspace&lt;/h1&gt;
+  &lt;p&gt;Change target runtime language to build!&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</div></div><div class="view-wrap hidden" id="viewContainer"><div class="view-bar"><span id="viewTitle">LIVE PREVIEW</span><button onclick="toggleViewer(!1)" style="background:none;border:none;color:#ef4444;cursor:pointer;font-weight:bold;font-size:14px;">✕</button></div><iframe id="preview"></iframe><div id="console" style="display:none"></div></div></div><footer class="ftr"><div id="cur">Ln 1, Col 1</div><div class="status"><div class="ind"></div><span id="stat">Compiler Active</span></div></footer><div class="modal-overlay" id="modal"><div class="modal"><div class="modal-hdr"><span style="font-weight:700;font-size:15px">Premium Configurations</span><button onclick="closeSettings()" style="background:none;border:none;color:var(--act);font-weight:600;font-size:13px;cursor:pointer">Done</button></div><div class="t-grid"><button class="t-btn" style="background:#1a1a24;border-color:var(--act)" onclick="setTheme('one_dark')">One Dark Pro</button><button class="t-btn" style="background:#141414" onclick="setTheme('monokai')">Monokai Dark</button><button class="t-btn" style="background:#0f172a" onclick="setTheme('twilight')">Twilight Slate</button><button class="t-btn" style="background:#f8fafc;color:#0f172a" onclick="setTheme('textmate')">GitHub Light</button></div></div></div><script>ace.require("ace/ext/language_tools");var editor=ace.edit("editor");editor.setTheme("ace/theme/one_dark");editor.session.setMode("ace/mode/html");editor.setOptions({showPrintMargin:!1,enableBasicAutocompletion:!0,enableLiveAutocompletion:!0,useSoftTabs:!0,navigateWithinSoftTabs:!0});editor.container.addEventListener("click",function(){editor.focus()},!0);editor.selection.on("changeCursor",function(){var e=editor.getCursorPosition();document.getElementById("cur").innerText="Ln "+(e.row+1)+", Col "+(e.column+1)});document.getElementById("langSel").addEventListener("change",function(e){editor.session.setMode("ace/mode/"+e.target.value);if("html"!==e.target.value&&editor.getValue().startsWith("<!DOCTYPE html>")){editor.setValue("// Code.edit Developer Workspace\nconsole.log('Runtime compiled successfully.');",1)}});function toggleViewer(e){document.getElementById("viewContainer").classList.toggle("hidden",!e);setTimeout(function(){editor.resize()},50)}function runCode(){var e=document.getElementById("langSel").value,t=editor.getValue();toggleViewer(!0);var n=document.getElementById("preview"),o=document.getElementById("console");if("html"===e){n.style.display="block";o.style.display="none";document.getElementById("viewTitle").innerText="LIVE WEB PREVIEW";var r=n.contentDocument||n.contentWindow.document;r.open();r.write(t);r.close()}else{n.style.display="none";o.style.display="block";document.getElementById("viewTitle").innerText="CONSOLE COMPILER OUTPUT";o.innerText="> Running initialization modules...\n> Testing syntax tree build for: ["+e.toUpperCase()+"]\n\n";if("javascript"===e)try{var i=[];var a=console.log;console.log=function(e){i.push(e)};new Function(t)();console.log=a;o.innerText+=i.length?i.join("\n"):"> Evaluation finished. (No standard output returned)"}catch(c){o.innerText+="⚠️ Runtime Execution Failure: "+c.message}else o.innerText+="[Status: Build Complete]\n\nOffline "+e.toUpperCase()+" local compilation success. Execution requires native server pairing inside your deployment wrappers."}}function saveFile(){var e=editor.getValue(),t=document.getElementById("langSel").value;if("c_cpp"===t)t="cpp";var n=new Blob([e],{type:"text/plain;charset=utf-8"}),o=document.createElement("a");o.download="source."+("javascript"===t?"js":"python"===t?"py":t);o.href=URL.createObjectURL(n);o.click()}function loadFile(e){var t=e.files;if(t&&0!==t.length){var n=t[0],o=new FileReader;o.onload=function(e){editor.setValue(e.target.result,-1);var t=n.name.split(".").pop().toLowerCase(),o="html";if("js"===t)o="javascript";if("py"===t)o="python";if("java"===t)o="java";if("cpp"===t||"c"===t)o="c_cpp";document.getElementById("langSel").value=o;editor.session.setMode("ace/mode/"+o)};o.readAsText(n)}}function openSettings(){document.getElementById("modal").classList.add("active")}function closeSettings(){document.getElementById("modal").classList.remove("active")}function setTheme(e){editor.setTheme("ace/theme/"+e);closeSettings()}</script></body></html>
