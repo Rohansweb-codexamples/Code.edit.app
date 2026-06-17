@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Code.edit Sites</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="publicView" class="public-view" hidden></div>
+
+  <div id="builderApp" class="app-shell">
+    <header class="app-header">
+      <div class="brand-block">
+        <span class="brand-mark">CE</span>
+        <div>
+          <p class="eyebrow">Advanced website builder</p>
+          <input id="siteName" class="site-name" value="Studio Portfolio" aria-label="Site name" />
+        </div>
+      </div>
+      <nav class="header-actions" aria-label="Site actions">
+        <button id="newSiteButton" class="secondary">New site</button>
+        <button id="previewButton" class="secondary">Viewer</button>
+        <button id="publishButton" class="primary">Publish viewer</button>
+        <button id="downloadButton" class="primary">Download public HTML</button>
+      </nav>
+    </header>
+
+    <main class="builder-layout">
+      <aside class="tools-panel" aria-label="Builder tools">
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Pages</h2>
+            <button id="addPageButton" class="small-button">Add page</button>
+          </div>
+          <div id="pageList" class="page-list"><button class="page-tab is-active" type="button">Home</button></div>
+        </section>
+
+        <section class="panel">
+          <h2>Design</h2>
+          <label>Theme
+            <select id="themeSelect">
+              <option value="indigo">Indigo studio</option>
+              <option value="forest">Forest launch</option>
+              <option value="minimal">Minimal paper</option>
+              <option value="slate">Slate product</option>
+              <option value="rose">Rose editorial</option>
+            </select>
+          </label>
+          <label>Font
+            <select id="fontSelect">
+              <option value="Inter, system-ui, sans-serif">Inter</option>
+              <option value="Georgia, serif">Georgia</option>
+              <option value="Arial, sans-serif">Arial</option>
+              <option value="Trebuchet MS, sans-serif">Trebuchet</option>
+            </select>
+          </label>
+          <label>Header style
+            <select id="headerStyle">
+              <option value="split">Split hero</option>
+              <option value="centered">Centered hero</option>
+              <option value="compact">Compact banner</option>
+            </select>
+          </label>
+          <div class="color-grid">
+            <label>Accent <input id="accentColor" type="color" value="#4f46e5" /></label>
+            <label>Background <input id="backgroundColor" type="color" value="#ffffff" /></label>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Insert blocks</h2>
+          <p class="panel-help">Choose a block, then click the page where it should be placed.</p>
+          <div class="tool-grid">
+            <button data-section="text">Text</button>
+            <button data-section="feature">Features</button>
+            <button data-section="gallery">Gallery</button>
+            <button data-section="pricing">Pricing</button>
+            <button data-section="faq">FAQ</button>
+            <button data-section="cta">Call to action</button>
+            <button data-section="contact">Contact</button>
+            <button data-section="embed">Embed</button>
+          </div>
+        </section>
+      </aside>
+
+      <section class="editor-stage" aria-label="Main website editor">
+        <div class="editor-toolbar">
+          <label>Page
+            <select id="currentPageSelect"><option value="home">Home</option></select>
+          </label>
+          <label>Page title
+            <input id="pageTitle" type="text" />
+          </label>
+          <label>Button link
+            <input id="buttonLink" type="url" placeholder="https://example.com" />
+          </label>
+          <button data-command="bold">Bold</button>
+          <button data-command="italic">Italic</button>
+          <button data-command="underline">Underline</button>
+          <button data-command="insertUnorderedList">Bullets</button>
+          <button data-command="justifyCenter">Center</button>
+          <button id="deleteSectionButton" class="danger-button" type="button">Delete section</button>
+          <label>Text color <input id="textColor" type="color" value="#111827" /></label>
+          <span id="placementStatus" class="placement-status">Select text to edit, or choose a block then click the page to place it.</span>
+        </div>
+        <div id="canvas" class="site-canvas" contenteditable="true" spellcheck="true"></div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="previewDialog" class="modal preview-modal">
+    <form method="dialog"><button class="modal-close">Close</button></form>
+    <h2>Published viewer preview</h2>
+    <iframe id="previewFrame" title="Published viewer preview"></iframe>
+  </dialog>
+
+  <dialog id="publishDialog" class="modal">
+    <form method="dialog"><button class="modal-close">Close</button></form>
+    <h2>Viewer published on this device</h2>
+    <p>The editable project is saved in this browser local storage. The viewer link opens a read-only public-style page with no editor controls on this device. To put it on the world wide web for everyone, use Download public HTML and upload the file to a web host.</p>
+    <input id="publishedUrl" readonly />
+    <div class="modal-actions">
+      <button id="copyLinkButton" class="primary">Copy viewer link</button>
+      <button id="openPublishedButton" class="secondary">Open viewer</button>
+    </div>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
